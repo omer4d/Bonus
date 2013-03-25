@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" id="ClientAppElement" ng-app="ClientApp">
+	<head>
+		<meta charset="utf-8">
+		<script src="angular.js"></script>
+		
+		<script>
+			var clientApp = angular.module("ClientApp", []);
+			var numbers = [1, 2, 3, 4, 5, 6];
+			
+			clientApp.service("NumberFetcherSvc",
+				function()
+				{
+					this.fetch = function()
+					{
+						return numbers;
+					}
+				}
+			);
+			
+			clientApp.controller("ListCtrl", 
+				function ListCtrl($scope, NumberFetcherSvc)
+				{
+					$scope.numbers = NumberFetcherSvc.fetch();
+				}
+			);
+			
+			function updater()
+			{
+				for(var i = 0; i < numbers.length; ++i)
+					++numbers[i];
+				
+				e = document.getElementById('ListCtrlElement');
+				scope = angular.element(e).scope();
+				scope.$apply(); 
+			}
+			
+			setInterval(updater, 1000);
+		</script>
+	</head>
+	
+	<body id="ListCtrlElement" ng-controller="ListCtrl">
+		<input ng-model="query">
+		</input>
+	
+		<div ng-repeat="n in numbers">
+			{{"" + n}}
+		</div>
+			{{query}}
+		<div>
+	</body>
+</html>

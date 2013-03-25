@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ClientApp">
+    <head>
+        <meta charset="utf-8">
+        <title>Bonus</title>
+		
+		<script src="jquery-1.9.1.min.js"></script>
+		<script src="Lobby.js"></script>
+		<script src="Frontend.js"></script>
+		<script src="angular.js"></script>
+    </head>
+    <body>
+		
+		<div id="LobbyDiv" ng-controller="LobbyCtrl">
+			<table border="1">
+				<tr>
+					<th>Game Name</th>
+					<th>Game Host</th>
+					<th>Join</th>
+				</tr>
+				
+				<tr ng-repeat="game in lobby.gameInfoArr">
+					<td>{{game.name}}</td>
+					<td>{{game.host}}</td>
+					<td><input type="button" value="Join"/></td>
+				</tr>
+			</table>
+		
+			<table border="1">
+				<tr>
+					<th>Player Name</th>
+				</tr>
+				
+				<tr ng-repeat="name in lobby.clientNameArr">
+					<td>{{name}}</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div id="log">
+			Connecting...
+		</div>
+    </body>
+</html>
