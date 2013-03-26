@@ -3,9 +3,18 @@ var Player = require("./Player.js");
 var Tileset = require("./Tileset.js");
 var Board = require("./Board.js");
 
-//
-//
-//
+// ************
+// * Messages *
+// ************
+
+function GameStartedMsg()
+{
+	
+}
+
+// ********
+// * Game *
+// ********
 
 function Game(name, host, dictionary)
 {
@@ -22,14 +31,30 @@ function Game(name, host, dictionary)
 	this.ongoing = false;
 }
 
-Game.prototype.join = function(callback)
+// Returns a stripped-down game object for the ClientApp:
+Game.prototype.stub = function()
+{
+	return	{
+				dictionary :
+				{
+					filename : this.dictionary.filename,
+					charset  : this.dictionary.charset
+				},
+				
+				board : this.board,
+				playerArr : this.playerArr
+			};
+}
+
+Game.prototype.join = function(name, callback)
 {
 	var i = this.playerNum;
 	var player = this.playerArr[i];
 	
-	this.playerCallback[i] = callback;
+	this.playerCallbackArr[i] = callback;
 	++this.playerNum;
 	
+	player.name = name;
 	return player;
 }
 

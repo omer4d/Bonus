@@ -49,7 +49,11 @@ function ClientApp(log)
 	this.connection = null;
 	
 	this.log = log;
-	this.client = {};
+	this.client =
+	{
+		name : "",
+		game : new Game()
+	};
 	this.lobby = new Lobby();
 	
 	this.onConnectionOpen = null;
@@ -66,7 +70,7 @@ function handleMsg(clientApp, msg)
 		
 	else if(msg.type == "JoinedGameMsg")
 	{
-		if(clinetApp.onJoinedGame != null)
+		if(clientApp.onJoinedGame != null)
 			clientApp.onJoinedGame();
 	}
 		

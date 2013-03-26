@@ -68,7 +68,6 @@ function handleMsg(client, msg)
 	if(msg.type == "ConnectionMsg")
 	{
 		client.name = msg.name;
-		client.updatedProps.push("name");
 		sendMsg(client.connection, new JoinedLobbyMsg(client.name));
 		sendMsg(client.connection, lobby.getFullUpdateMsg());
 						
@@ -86,7 +85,8 @@ function handleMsg(client, msg)
 		
 		var game = Game.create(msg.name, client.name, Dictionary.create("eng.dict"));
 		client.game = game;
-							
+		client.player = game.join(client.name, null);
+		
 		var msg1 = lobby.addGame(game);
 		var msg2 = lobby.removeClient(client);
 		

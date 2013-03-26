@@ -6,6 +6,7 @@ $(
 		var connectDiv = $("#ConnectDiv"); 
 		var logDiv = $("#LogDiv");
 		var lobbyDiv = $("#LobbyDiv");
+		var gameDiv = $("#GameDiv");
 		var clientApp = null;
 		
 		function log(msg)
@@ -24,6 +25,11 @@ $(
 		{
 			lobbyDiv.show();
 			connectDiv.hide();
+		}
+		clientApp.onJoinedGame = function()
+		{
+			lobbyDiv.hide();
+			gameDiv.show();
 		}
 		
 		$("#ConnectButton").click(
@@ -52,10 +58,25 @@ $(
 			}
 		);
 		
-		clientNgModule.controller("ClientCtrl",
+		clientNgModule.controller("GameCtrl",
 			function($scope)
 			{
 				$scope.client = clientApp.client;
+				$scope.cellStyle = function(index)
+				{
+					switch(index)
+					{
+						case 1:
+							return "background-color:#54B6D1;";
+							break;
+						case 2:
+							return "background-color:#CBA321;";
+							break;
+						default:
+							return "background: transparent;";
+							break;
+					}
+				}
 			}
 		);
 	}

@@ -1,11 +1,10 @@
-var Patch = require("./Patch.js");
+// ************
+// * Messages *
+// ************
 
-function ModelUpdateMsg(client)
-{
-	this.type = "ModelUpdateMsg";
-	this.modelName = "Client";
-	this.patch = Patch.create(client);
-}
+// **********
+// * Client *
+// **********
 
 function Client(name, connection)
 {
@@ -13,23 +12,11 @@ function Client(name, connection)
 	this.name = name;
 	this.player = null;
 	this.game = null;
-	
-	this.updatedProps = [];
 }
 
 Client.prototype.isInGame = function()
 {
 	return this.game != null;
-}
-
-Client.prototype.getModelUpdateMsg = function()
-{
-	return new ModelUpdateMsg(this);
-}
-
-Client.prototype.joinGame = function(game)
-{
-	
 }
 
 // ***********
