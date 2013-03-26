@@ -1,3 +1,12 @@
+var Patch = require("./Patch.js");
+
+function ModelUpdateMsg(client)
+{
+	this.type = "ModelUpdateMsg";
+	this.modelName = "Client";
+	this.patch = Patch.create(client);
+}
+
 function Client(name, connection)
 {
 	this.connection = connection;
@@ -6,6 +15,21 @@ function Client(name, connection)
 	this.game = null;
 	
 	this.updatedProps = [];
+}
+
+Client.prototype.isInGame = function()
+{
+	return this.game != null;
+}
+
+Client.prototype.getModelUpdateMsg = function()
+{
+	return new ModelUpdateMsg(this);
+}
+
+Client.prototype.joinGame = function(game)
+{
+	
 }
 
 // ***********

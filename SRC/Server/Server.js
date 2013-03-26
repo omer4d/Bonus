@@ -36,79 +36,71 @@ var gameServer = new WebsockServer({httpServer: webServer});
 // * Helper functions *
 // ********************
 
-function generatePatch(dest, src)
-{
-	var updated = false;
-	
-	// Copy marked primitives and arrays:
-	if(src.updatedProps instanceof Array && src.updatedProps.length > 0)
-	{
-		var updatedProps = src.updatedProps;
-		updated = true;
-		
-		for(var i = 0; i < updatedProps.length; ++i)
-		{
-			var prop = updatedProps[i];
-			
-			if(src[prop] instanceof Array || !(src[prop] instanceof Object || src[prop] instanceof Function))
-				dest[prop] = src[prop];
-		}
-	}
-	
-	src.updatedProps = [];
-	
-	// Copy any internal objects that have updated properties:
-	for(var prop in src)
-	{
-		if(src[prop] instanceof Object && !(src[prop] instanceof Array))
-		{
-			var tmp = {};
-			if(generatePatch(tmp, src[prop]))
-			{
-				updated |= true;
-				dest[prop] = tmp;
-			}
-		}
-	}
-	
-	return updated;
-}
-
 function sendMsg(connection, msg)
 {
 	connection.sendUTF(JSON.stringify(msg));
 }
 
-/*
-function sendModelUpdate(connection, modelName, patch)
+// ************
+// * Messages *
+// ************
+
+function JoinedLobbyMsg(name)
 {
-	var msg = {};
-	
-	msg.type = "modelUpdate";
-	msg.modelName = modelName;
-	msg.patch = patch;
-	
-	connection.sendUTF(JSON.stringify(msg));
+	this.type = "JoinedLobbyMsg";
+	this.name = name;
 }
 
-function sendClientModelUpdate(connection, client)
+function JoinedGameMsg()
 {
-	var patch = {};
-	
-	if(generatePatch(patch, client))
-	{
-		console.log("Sending patch!");
-		sendModelUpdate(connection, "client", patch);
-	}
-}*/
+	this.type = "JoinedGameMsg";
+}
 
 // ******************
 // * Handle clients *
 // ******************
 
-var clientArr = new Array();
 var lobby = Lobby.create();
 var connectionCounter = 0;
+
+function handleMsg(client, msg)
+{
+	if(msg.type == "ConnectionMsg")
+	{
+		client.name = msg.name;
+		client.updatedProps.push("name");
+		sendMsg(client.connection, new JoinedLobbyMsg(client.name));
+		sendMsg(client.connection, lobby.getFullUpdateMsg());
+						
+		var msg = lobby.addClient(client);
+		
+		// Nofity all lobby clients that a client has connected:
+		for(var i = 0; i < lobby.clientArr.length; ++i)
+			sendMsg(lobby.clientArr[i].connection, msg);
+	}
+	
+	else if(msg.type == "StartGameMsg")
+	{
+		console.log("Starting game: " + msg.name);
+		sendMsg(client.connection, new JoinedGameMsg());
+		
+		var game = Game.create(msg.name, client.name, Dictionary.create("eng.dict"));
+		client.game = game;
+							
+		var msg1 = lobby.addGame(game);
+		var msg2 = lobby.removeClient(client);
+		
+		// Nofity all lobby clients that a new game has been started:
+		for(var i = 0; i < lobby.clientArr.length; ++i)
+		{
+			sendMsg(lobby.clientArr[i].connection, msg1);
+			sendMsg(lobby.clientArr[i].connection, msg2);
+		}
+	}
+	
+	else
+		console.log("Unhandled msg: " + msg);
+}
 
 gameServer.on('request',
 	function(request)
@@ -119,22 +111,22 @@ gameServer.on('request',
 		++connectionCounter;
 		console.log(request.remoteAddress + ' connected.');
 		
-		//client.updatedProps.push("name");
-		//sendClientModelUpdate(connection, client);
-		
-		sendMsg(client.connection, lobby.getFullUpdateMsg());
-		var msg = lobby.addClient(client);//LobbyMsg.createAddClientMsg(client.name);
-		
-		// Nofity all lobby clients that a client has connected:
-		for(var i = 0; i < lobby.clientArr.length; ++i)
-			sendMsg(lobby.clientArr[i].connection, msg);
-		
 		connection.on('message',
-			function(message)
-			{
-				if(message.type === 'utf8')
+			function(raw)
+			{			
+				if(raw.type === 'utf8')
 				{
-					console.log("[Client #" + client.index + "]: " + message.utf8Data);
+					try
+					{
+						var msg = JSON.parse(raw.utf8Data);
+					}
+					catch(e)
+					{
+						console.log("Received corrupted message: " + raw.utf8Data);
+						return;
+					}
+					
+					handleMsg(client, msg);
 				}
 			}
 		);
@@ -142,25 +134,26 @@ gameServer.on('request',
 		connection.on('close',
 			function(connection)
 			{
-				var msg = lobby.removeClient(client);
-				
-				// Notify all lobby clients that a client has left:
-				for(var i = 0; i < lobby.clientArr.length; ++i)
+				if(!client.isInGame())
 				{
-					sendMsg(lobby.clientArr[i].connection, msg);
+					var msg = lobby.removeClient(client);
+					
+					for(var i = 0; i < lobby.clientArr.length; ++i)
+						sendMsg(lobby.clientArr[i].connection, msg);
 				}
 				
-				var i = clientArr.indexOf(client);
-				console.log("[Client #" + i + "] disconnected.");
-				clientArr.splice(i, 1);
+				else if(!client.game.ongoing)
+				{
+					console.log("Closing game [" + client.game.name + "].");
+					var msg = lobby.removeGame(client.game);
+					
+					// Notify all lobby clients that a game has been closed:
+					for(var i = 0; i < lobby.clientArr.length; ++i)
+						sendMsg(lobby.clientArr[i].connection, msg);
+				}
+				
+				console.log("Client [" + client.name + "] disconnected.");
 			}
 		);
 	}
 );
-
-/*
-var game = Game.create(Dictionary.create("eng.dict"));
-
-console.log("" + game.board.tileset + "\n" + game.board);
-
-setTimeout(null, 2000);*/

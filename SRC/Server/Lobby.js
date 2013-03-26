@@ -4,7 +4,7 @@
 
 function AddGameMsg(game)
 {
-	this.type = "LobbyMsg";
+	this.type = "LobbyUpdateMsg";
 	this.cmd = "AddGame";
 	this.gameName = game.name;
 	this.gameHost = game.host;
@@ -12,28 +12,28 @@ function AddGameMsg(game)
 
 function RemoveGameMsg(index)
 {
-	this.type = "LobbyMsg";
+	this.type = "LobbyUpdateMsg";
 	this.cmd = "RemoveGame";
 	this.gameIndex = index;
 }
 
 function AddClientMsg(client)
 {
-	this.type = "LobbyMsg";
+	this.type = "LobbyUpdateMsg";
 	this.cmd = "AddClient";
 	this.clientName = client.name;
 }
 
 function RemoveClientMsg(index)
 {
-	this.type = "LobbyMsg";
+	this.type = "LobbyUpdateMsg";
 	this.cmd = "RemoveClient";
 	this.clientIndex = index;
 }
 
 function FullUpdateMsg(lobby)
 {
-	this.type = "LobbyMsg";
+	this.type = "LobbyUpdateMsg";
 	this.cmd = "FullUpdate";
 	this.clientNameArr = [];
 	this.gameInfoArr = [];
@@ -69,7 +69,12 @@ Lobby.prototype.addClient = function(client)
 Lobby.prototype.removeClient = function(client)
 {
 	var i = this.clientArr.indexOf(client);
+	
+	if(i < 0)
+		throw("Client not in lobby!");
+	
 	this.clientArr.splice(i, 1);
+	
 	return new RemoveClientMsg(i);
 }
 
@@ -82,6 +87,10 @@ Lobby.prototype.addGame = function(game)
 Lobby.prototype.removeGame = function(game)
 {
 	var i = this.gameArr.indexOf(game);
+	
+	if(i < 0)
+		throw("Game not in lobby!");
+	
 	this.gameArr.splice(i, 1);
 	return new RemoveGameMsg(i);
 }

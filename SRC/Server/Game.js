@@ -16,30 +16,21 @@ function Game(name, host, dictionary)
 	this.dictionary = dictionary;
 	this.board = Board.create(11, 11, Tileset.create(dictionary.charset));
 	
-	this.player1 = Player.create();
-	this.player2 = Player.create();
-	
-	this.player1Callback = null;
-	this.player2Callback = null;
+	this.playerArr = [Player.create(), Player.create()];
+	this.playerCallbackArr = [null, null];
 	
 	this.ongoing = false;
 }
 
 Game.prototype.join = function(callback)
 {
+	var i = this.playerNum;
+	var player = this.playerArr[i];
+	
+	this.playerCallback[i] = callback;
 	++this.playerNum;
-	switch(this.playerNum)
-	{
-		case 1:
-			this.player1Callback = callback;
-			return this.player1;
-			
-		case 2:
-			this.player2Callback = callback;
-			return this.player2;
-		default:
-			return null;
-	}
+	
+	return player;
 }
 
 Game.prototype.parseMsg = function(player, msg)
@@ -51,7 +42,7 @@ Game.prototype.parseMsg = function(player, msg)
 // * Exports *
 // ***********
 
-exports.create = function(dictionary)
+exports.create = function(name, host, dictionary)
 {
-	return new Game(dictionary);
+	return new Game(name, host, dictionary);
 }

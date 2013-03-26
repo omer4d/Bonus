@@ -1,17 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="ClientApp">
+<html lang="en" ng-app="ClientNgModule">
     <head>
         <meta charset="utf-8">
         <title>Bonus</title>
 		
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="Lobby.js"></script>
+		<script src="ClientApp.js"></script>
 		<script src="Frontend.js"></script>
 		<script src="angular.js"></script>
     </head>
     <body>
 		
-		<div id="LobbyDiv" ng-controller="LobbyCtrl">
+		<div id="ConnectDiv">
+			Enter name: <input id="ClientNameField" type="text" value="Player"/>
+			<input type="button" id="ConnectButton" value="Connect">
+		</div>
+		
+		<div id="LobbyDiv" ng-controller="LobbyCtrl" hidden="true">
 			<table border="1">
 				<tr>
 					<th>Game Name</th>
@@ -35,10 +41,12 @@
 					<td>{{name}}</td>
 				</tr>
 			</table>
+			
+			Game name: <input id="GameNameField" type="text"/>
+			<input id="StartGameButton" type="button" value="Start Game"/>
 		</div>
 		
-		<div id="log">
-			Connecting...
+		<div id="LogDiv">
 		</div>
     </body>
 </html>
