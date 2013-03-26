@@ -9,6 +9,21 @@ $(
 		var gameDiv = $("#GameDiv");
 		var clientApp = null;
 		
+		function generateMatrix(w, h)
+		{
+			var mat = new Array();
+			var c = 0;
+			
+			for(var j = 0; j < h; ++j)
+			{
+				mat[j] = new Array();
+				for(var i = 0; i < w; ++i, ++c)
+					mat[j][i] = c;
+			}
+			
+			return mat;
+		}
+		
 		function log(msg)
 		{
 			logDiv.append(msg + "<br/>");
@@ -62,6 +77,18 @@ $(
 			function($scope)
 			{
 				$scope.client = clientApp.client;
+				$scope.bankIndexMat = generateMatrix(2, 4);
+				
+				$scope.getPlayer = function(index)
+				{
+					return $scope.client.game.playerArr[index];
+				}
+				
+				$scope.getBoard = function()
+				{
+					return $scope.client.game.board;
+				}
+				
 				$scope.cellStyle = function(index)
 				{
 					switch(index)

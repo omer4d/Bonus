@@ -10,25 +10,22 @@ function Tileset()
 	this.lettersStart = FIRST_LETTER_INDEX;
 }
 
-function Board(w, h)
-{
-	this.w = w;
-	this.h = h;
-	this.tileset = new Tileset();
+function Board()
+{	
+	var w = 11, h = 11;
+	var data = new Array(h);
 	
-	var data = new Array(w);
-	
-	for(var i = 0; i < w; ++i)
+	for(var j = 0; j < h; ++j)
 	{
-		data[i] = new Array(h);
+		data[j] = new Array(w);
 		
-		for(var j = 0; j < h; ++j)
-			data[i][j] = SOLID_TILE_INDEX;
+		for(var i = 0; i < w; ++i)
+			data[j][i] = SOLID_TILE_INDEX;
 	}
 	
-	for(var i = 1; i < w - 1; ++i)
-		for(var j = 1; j < h - 1; ++j)
-			data[i][j] = EMPTY_TILE_INDEX;
+	for(var j = 1; j < h - 1; ++j)
+		for(var i = 1; i < w - 1; ++i)
+			data[j][i] = EMPTY_TILE_INDEX;
 	
 	data[0][2] = SPECIAL_TILE_INDEX;
 	data[0][4] = SPECIAL_TILE_INDEX;
@@ -45,20 +42,23 @@ function Board(w, h)
 	data[h - 3][w - 1] = SPECIAL_TILE_INDEX;
 	data[h - 5][w - 1] = SPECIAL_TILE_INDEX;
 	data[h - 8][w - 1] = SPECIAL_TILE_INDEX;
-
+	
 	this.data = data;
+	this.w = w;
+	this.h = h;
+	this.tileset = new Tileset();
 }
 
 function Player()
 {
-	this.name = "";
+	this.name = "-";
 	this.score = 0;
-	this.letters = [EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX,
-					EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX];
+	this.bank = [EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX,
+				EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX, EMPTY_TILE_INDEX];
 }
 
 function Game()
 {
-	this.board = new Board(11, 11);
+	this.board = new Board();
 	this.playerArr = [new Player(), new Player()];
 }

@@ -23,7 +23,7 @@ function Game(name, host, dictionary)
 	this.name = name;
 	this.host = host;
 	this.dictionary = dictionary;
-	this.board = Board.create(11, 11, Tileset.create(dictionary.charset));
+	this.board = Board.create(Tileset.create(dictionary.charset));
 	
 	this.playerArr = [Player.create(), Player.create()];
 	this.playerCallbackArr = [null, null];

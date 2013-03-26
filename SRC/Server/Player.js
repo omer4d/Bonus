@@ -2,7 +2,7 @@ function Player()
 {
 	this.name = "";
 	this.score = 0;
-	this.letters = new Array();
+	this.bank = [];
 }
 
 // ***********

@@ -4,6 +4,8 @@
         <meta charset="utf-8">
         <title>Bonus</title>
 		
+		<link rel="stylesheet" type="text/css" href="style.css">
+		
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="Lobby.js"></script>
 		<script src="Stubs.js"></script>
@@ -48,11 +50,52 @@
 		</div>
 		
 		<div id="GameDiv" ng-controller="GameCtrl" hidden="true" style="background-color:#2F6487">
-			<table>
-				<tr ng-repeat="row in client.game.board.data">
-					<td width="50" height="50" ng-repeat="col in row" style="{{ cellStyle(col) }}" ></td>
-				</tr>
-			</table>
+			<table><tr>
+				<td>
+					<table border="1">
+						<tr><td>{{getPlayer(0).name}}</td></tr>
+						
+						<tr><td bgcolor="black">
+							<font color="yellow">{{getPlayer(0).score}}</font>
+						</td></tr>
+						
+						<tr><td>
+							<table>
+								<tr ng-repeat="row in bankIndexMat">
+									<td width="50" height="50" ng-repeat="idx in row" style="{{ cellStyle(getPlayer(0).bank[idx]) }}" ></td>
+								</tr>
+							</table>
+						</td></tr>
+					</table>
+				</td>
+			
+				<td>
+					<table>
+						<tr ng-repeat="row in getBoard().data">
+							<td width="50" height="50" ng-repeat="col in row" style="{{ cellStyle(col) }}" ></td>
+						</tr>
+					</table>
+				</td>
+			
+				<td>
+					<table border="1">
+						<tr><td>{{getPlayer(1).name}}</td></tr>
+						
+						<tr><td bgcolor="black">
+							<font color="yellow">{{getPlayer(1).score}}</font>
+						</td></tr>
+						
+						<tr><td>
+							<table>
+								<tr ng-repeat="row in bankIndexMat">
+									<td width="50" height="50" ng-repeat="idx in row" style="{{ cellStyle(getPlayer(1).bank[idx]) }}" ></td>
+								</tr>
+							</table>
+						</td></tr>
+					</table>
+				</td>
+				
+			</tr></table>
 		</div>
 		
 		<div id="LogDiv">
