@@ -34,10 +34,16 @@ function ConnectionMsg(name)
 	this.name = name;
 }
 
-function StartGameMsg(name)
+function OpenGameMsg(name)
 {
-	this.type = "StartGameMsg";
+	this.type = "OpenGameMsg";
 	this.name = name;
+}
+
+function JoinGameMsg(index)
+{
+	this.type = "JoinGameMsg";
+	this.gameIndex = index;
 }
 
 // *************
@@ -49,16 +55,14 @@ function ClientApp(log)
 	this.connection = null;
 	
 	this.log = log;
-	this.client =
-	{
-		name : "",
-		game : new Game()
-	};
+	this.client = { name : ""};
+	this.game = new Game();
 	this.lobby = new Lobby();
 	
 	this.onConnectionOpen = null;
 	this.onLobbyUpdate = null;
 	this.onJoinedGame = null;
+	this.onGameStarted = null;
 }
 
 function handleMsg(clientApp, msg)
@@ -80,6 +84,14 @@ function handleMsg(clientApp, msg)
 			
 		if(clientApp.onLobbyUpdate != null)
 			clientApp.onLobbyUpdate();
+	}
+	
+	else if(msg.type == "GameUpdateMsg")
+	{
+		clientApp.game.parseMsg(msg);
+		
+		if(msg.cmd == "Start" && clientApp.onGameStarted)
+			clientApp.onGameStarted();
 	}
 	
 	else
@@ -144,7 +156,13 @@ ClientApp.prototype.connect = function(name)
 	}
 }
 
-ClientApp.prototype.startGame = function(name)
+ClientApp.prototype.openGame = function(name)
 {
-	sendMsg(this.connection, new StartGameMsg(name));
+	sendMsg(this.connection, new OpenGameMsg(name));
 }
+
+ClientApp.prototype.joinGame = function(index)
+{
+	sendMsg(this.connection, new JoinGameMsg(index));
+}
+

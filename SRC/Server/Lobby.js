@@ -60,6 +60,16 @@ function Lobby()
 	this.gameArr = [];
 }
 
+Lobby.prototype.validGameIndex = function(index)
+{
+	return index >= 0 && index < this.gameArr.length;
+}
+
+Lobby.prototype.containsClient = function(client)
+{
+	return this.clientArr.indexOf(client) >= 0;
+}
+
 Lobby.prototype.addClient = function(client)
 {
 	this.clientArr.push(client);

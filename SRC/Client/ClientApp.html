@@ -8,12 +8,14 @@
 		
 		<script src="jquery-1.9.1.min.js"></script>
 		<script src="Lobby.js"></script>
+		<script src="Tile.js"></script>
 		<script src="Stubs.js"></script>
 		<script src="ClientApp.js"></script>
 		<script src="Frontend.js"></script>
 		<script src="angular.js"></script>
     </head>
     <body>
+		
 		
 		<div id="ConnectDiv">
 			Enter name: <input id="ClientNameField" type="text" value="Player"/>
@@ -31,7 +33,7 @@
 				<tr ng-repeat="game in lobby.gameInfoArr">
 					<td>{{game.name}}</td>
 					<td>{{game.host}}</td>
-					<td><input type="button" value="Join"/></td>
+					<td><input type="button" ng-click="joinGame($index)" value="Join"/></td>
 				</tr>
 			</table>
 		
@@ -46,7 +48,7 @@
 			</table>
 			
 			Game name: <input id="GameNameField" type="text"/>
-			<input id="StartGameButton" type="button" value="Start Game"/>
+			<input id="OpenGameButton" type="button" value="Open Game"/>
 		</div>
 		
 		<div id="GameDiv" ng-controller="GameCtrl" hidden="true" style="background-color:#2F6487">
@@ -62,7 +64,7 @@
 						<tr><td>
 							<table>
 								<tr ng-repeat="row in bankIndexMat">
-									<td width="50" height="50" ng-repeat="idx in row" style="{{ cellStyle(getPlayer(0).bank[idx]) }}" ></td>
+									<td width="50" height="50" ng-repeat="idx in row" style="{{ cellStyle(getBankAt(0, idx)) }}" >{{cellContent(getBankAt(0, idx))}}</td>
 								</tr>
 							</table>
 						</td></tr>
@@ -88,7 +90,7 @@
 						<tr><td>
 							<table>
 								<tr ng-repeat="row in bankIndexMat">
-									<td width="50" height="50" ng-repeat="idx in row" style="{{ cellStyle(getPlayer(1).bank[idx]) }}" ></td>
+									<td width="50" height="50" ng-repeat="idx in row" style="{{ cellStyle(getBankAt(1, idx)) }}" >{{cellContent(getBankAt(1, idx))}}</td>
 								</tr>
 							</table>
 						</td></tr>

@@ -1,10 +1,11 @@
-function Letter(symbol, value)
+function Letter(symbol, freq)
 {
 	this.symbol = symbol;
-	this.value = value;
+	this.freq = freq;
+	this.value = Math.floor(1.0 + (1.0 - freq) * 10.0);
 }
 
-exports.create = function(symbol, value)
+exports.create = function(symbol, freq)
 {
-	return new Letter(symbol, value);
+	return new Letter(symbol, freq);
 }

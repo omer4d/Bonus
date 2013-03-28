@@ -34,8 +34,14 @@ $(
 			angular.element(lobbyDiv).scope().$apply();
 		}
 		
+		function refreshGameDiv()
+		{
+			angular.element(gameDiv).scope().$apply();
+		}
+		
 		clientApp = new ClientApp(log);
 		clientApp.onLobbyUpdate = refreshLobbyDiv;
+		clientApp.onGameStarted = refreshGameDiv;
 		clientApp.onConnectionOpen = function()
 		{
 			lobbyDiv.show();
@@ -54,11 +60,10 @@ $(
 			}
 		);
 		
-		$("#StartGameButton").click(
+		$("#OpenGameButton").click(
 			function()
 			{
-				$("#StartGameButton").prop("disabled", true);
-				clientApp.startGame($("#GameNameField").val());
+				clientApp.openGame($("#GameNameField").val());
 			}
 		);
 		
@@ -70,37 +75,81 @@ $(
 			function($scope)
 			{
 				$scope.lobby = clientApp.lobby;
+				
+				$scope.joinGame = function(index)
+				{
+					clientApp.joinGame(index);
+				}
 			}
 		);
 		
 		clientNgModule.controller("GameCtrl",
 			function($scope)
 			{
-				$scope.client = clientApp.client;
+				$scope.game = clientApp.game;
 				$scope.bankIndexMat = generateMatrix(2, 4);
 				
 				$scope.getPlayer = function(index)
 				{
-					return $scope.client.game.playerArr[index];
+					return $scope.game.playerArr[index];
+				}
+				
+				$scope.getBankAt = function(playerIndex, bankIndex)
+				{
+					return $scope.game.playerArr[playerIndex].bank[bankIndex];
 				}
 				
 				$scope.getBoard = function()
 				{
-					return $scope.client.game.board;
+					return $scope.game.board;
+				}
+				
+				$scope.cellContent = function(index)
+				{
+					switch(index)
+					{
+						case Tile.EMPTY:
+							return "";
+							break;
+						
+						case Tile.BONUS:
+							return "*";
+							break;
+						
+						case Tile.SOLID:
+							return "";
+							break;
+						
+						case Tile.JOKER:
+							return "?";
+							break;
+							
+						case Tile.EXIT:
+							return "#";
+							break;
+							
+						default:
+							return $scope.game.getSymbol(index);//dictionary.letterset[index - Tile.FIRST_LETTER].symbol;
+							break;
+					}
 				}
 				
 				$scope.cellStyle = function(index)
 				{
 					switch(index)
 					{
-						case 1:
+						case Tile.EMPTY:
 							return "background-color:#54B6D1;";
 							break;
-						case 2:
+						case Tile.BONUS:
 							return "background-color:#CBA321;";
 							break;
-						default:
+						case Tile.SOLID:
 							return "background: transparent;";
+							break;
+							
+						default:
+							return "background-color:#A19A9D;";
 							break;
 					}
 				}

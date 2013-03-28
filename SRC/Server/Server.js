@@ -63,43 +63,86 @@ function JoinedGameMsg()
 var lobby = Lobby.create();
 var connectionCounter = 0;
 
+function sendMsgAll(msg)
+{
+	for(var i = 0; i < lobby.clientArr.length; ++i)
+		sendMsg(lobby.clientArr[i].connection, msg);
+}
+
 function handleMsg(client, msg)
 {
 	if(msg.type == "ConnectionMsg")
 	{
+		if(lobby.containsClient(client))
+		{
+			console.log("Received invalid ConnectionMsg");
+			return;
+		}
+	
 		client.name = msg.name;
 		sendMsg(client.connection, new JoinedLobbyMsg(client.name));
 		sendMsg(client.connection, lobby.getFullUpdateMsg());
-						
-		var msg = lobby.addClient(client);
-		
-		// Nofity all lobby clients that a client has connected:
-		for(var i = 0; i < lobby.clientArr.length; ++i)
-			sendMsg(lobby.clientArr[i].connection, msg);
+		sendMsgAll(lobby.addClient(client));
 	}
 	
-	else if(msg.type == "StartGameMsg")
+	else if(msg.type == "OpenGameMsg")
 	{
-		console.log("Starting game: " + msg.name);
+		if(!lobby.containsClient(client) || client.isInGame())
+		{
+			console.log("Received invalid OpenGameMsg");
+			return;
+		}
+		
+		console.log("Opening game: " + msg.name);
 		sendMsg(client.connection, new JoinedGameMsg());
 		
 		var game = Game.create(msg.name, client.name, Dictionary.create("eng.dict"));
 		client.game = game;
-		client.player = game.join(client.name, null);
 		
-		var msg1 = lobby.addGame(game);
-		var msg2 = lobby.removeClient(client);
+		msg = null; // Kill msg to prevent the closure from keeping it alive.
 		
-		// Nofity all lobby clients that a new game has been started:
-		for(var i = 0; i < lobby.clientArr.length; ++i)
+		// Assing a player object and forward game messages to client:
+		client.player = game.join(client.name,
+			function(msg)
+			{
+				sendMsg(client.connection, msg);
+			}
+		);
+		
+		sendMsgAll(lobby.addGame(game));
+		sendMsgAll(lobby.removeClient(client));
+	}
+	
+	else if(msg.type == "JoinGameMsg")
+	{
+		if(!lobby.containsClient(client) || client.isInGame() || !lobby.validGameIndex(msg.gameIndex))
 		{
-			sendMsg(lobby.clientArr[i].connection, msg1);
-			sendMsg(lobby.clientArr[i].connection, msg2);
+			console.log("Received invalid JoinGameMsg " +
+						!lobby.containsClient(client) + " " + client.isInGame() + " " + !lobby.validGameIndex(msg.index) + " " + msg.index);
+			return;
 		}
+		
+		var game = lobby.gameArr[msg.gameIndex];
+		
+		sendMsg(client.connection, new JoinedGameMsg());
+		
+		client.game = game;
+		msg = null; // Kill msg to prevent the closure from keeping it alive.
+		
+		// Assing a player object and forward game messages to client:
+		client.player = game.join(client.name,
+			function(msg)
+			{
+				sendMsg(client.connection, msg);
+			}
+		);
+		
+		sendMsgAll(lobby.removeClient(client));
+		sendMsgAll(lobby.removeGame(game));
 	}
 	
 	else
-		console.log("Unhandled msg: " + msg);
+		console.log("Unhandled msg: " + msg.type);
 }
 
 gameServer.on('request',
@@ -135,21 +178,12 @@ gameServer.on('request',
 			function(connection)
 			{
 				if(!client.isInGame())
-				{
-					var msg = lobby.removeClient(client);
-					
-					for(var i = 0; i < lobby.clientArr.length; ++i)
-						sendMsg(lobby.clientArr[i].connection, msg);
-				}
+					sendMsgAll(lobby.removeClient(client));
 				
 				else if(!client.game.ongoing)
 				{
 					console.log("Closing game [" + client.game.name + "].");
-					var msg = lobby.removeGame(client.game);
-					
-					// Notify all lobby clients that a game has been closed:
-					for(var i = 0; i < lobby.clientArr.length; ++i)
-						sendMsg(lobby.clientArr[i].connection, msg);
+					sendMsgAll(lobby.removeGame(client.game));
 				}
 				
 				console.log("Client [" + client.name + "] disconnected.");
